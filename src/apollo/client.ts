@@ -1,11 +1,15 @@
-import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client'
+import { ApolloClient, InMemoryCache, from } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
+import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
 
 // HTTP connection to the API
-const httpLink = createHttpLink({
+const httpLink = createUploadLink({
     uri: 'http://localhost/graphql',
-})
+    headers: {
+        "X-Requested-With": "XMLHttpRequest"
+    }
+});
 
 // Error handling
 const errorLink = onError(({ graphQLErrors, networkError }) => {

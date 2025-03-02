@@ -19,6 +19,7 @@ const NotePage = () => {
         await createNote({
             variables: {
                 content: newNote.content,
+                images: newNote.photos
             }
         })
     }
@@ -35,9 +36,12 @@ const NotePage = () => {
             <h1 className="text-2xl text-left mb-[24px] font-semibold">Note GraphQL</h1>
             <NoteForm onSubmit={handleSubmit} />
 
-            {data?.notes?.data.length > 0 && (
-                data.notes.data?.map(note => <NoteSingle note={note} key={note.id} />)
-            )}
+            <div className="flex flex-col gap-[12px]">
+                {data?.notes?.data.length > 0 && (
+                    data.notes.data?.map(note => <NoteSingle note={note} key={note.id} />)
+                )}
+            </div>
+
         </Layout>
     )
 }

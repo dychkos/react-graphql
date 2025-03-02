@@ -11,21 +11,32 @@ interface NoteFormProps {
 }
 
 
-const NoteForm: React.FC<NoteFormProps> = ({ onSubmit}) => {
-
+const NoteForm: React.FC<NoteFormProps> = ({ onSubmit }) => {
     const [content, setContent] = useState("")
-    const [photo, setPhoto] = useState<string | null>(null)
-
+    const [photos, setPhotos] = useState<Array<File>>([])
+    const [photoPreviewUrls, setPhotoPreviewUrls] = useState<Array<string>>([])
 
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                setPhoto(reader.result as string)
-            }
-            reader.readAsDataURL(file)
+        const files = e.target.files
+        if (files && files.length > 0) {
+            // Convert FileList to Array
+            const filesArray = Array.from(files)
+            setPhotos(prev => [...prev, ...filesArray])
+
+            // Create preview URLs for display
+            filesArray.forEach(file => {
+                const reader = new FileReader()
+                reader.onloadend = () => {
+                    setPhotoPreviewUrls(prev => [...prev, reader.result as string])
+                }
+                reader.readAsDataURL(file)
+            })
         }
+    }
+
+    const removePhoto = (index: number) => {
+        setPhotos(prev => prev.filter((_, i) => i !== index))
+        setPhotoPreviewUrls(prev => prev.filter((_, i) => i !== index))
     }
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -34,10 +45,11 @@ const NoteForm: React.FC<NoteFormProps> = ({ onSubmit}) => {
             const newNote: NoteType = {
                 id: Date.now(),
                 content,
-                photo: photo || undefined,
+                photos: photos,
             }
             setContent("")
-            setPhoto(null)
+            setPhotos([])
+            setPhotoPreviewUrls([])
 
             onSubmit(newNote)
         }
@@ -55,17 +67,33 @@ const NoteForm: React.FC<NoteFormProps> = ({ onSubmit}) => {
                 />
             </div>
             <div>
-                <Label htmlFor="photo">Photo</Label>
-                <Input id="photo" type="file" accept="image/*" onChange={handlePhotoUpload}/>
+                <Label htmlFor="photos">Photos</Label>
+                <Input
+                    id="photos"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    multiple
+                />
             </div>
-            {photo && (
-                <div>
-                    <img src={photo || "/placeholder.svg"} alt="Uploaded" className="mt-2 max-w-full h-auto"/>
+            {photoPreviewUrls.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                    {photoPreviewUrls.map((url, index) => (
+                        <div key={index} className="relative">
+                            <img src={url} alt={`Upload ${index + 1}`} className="w-full h-auto rounded" />
+                            <button
+                                type="button"
+                                onClick={() => removePhoto(index)}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    ))}
                 </div>
             )}
             <Button type="submit">Add Note</Button>
         </form>
-
     )
 }
 

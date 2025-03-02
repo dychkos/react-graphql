@@ -1,7 +1,9 @@
 export interface NoteType {
     id: number
     content: string
-    images?: ImageType[]
+    images?: ImageType[],
+    photo?: string|undefined
+    photos?: File[];
 }
 
 export interface ImageType {

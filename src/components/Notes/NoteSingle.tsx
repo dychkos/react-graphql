@@ -1,5 +1,6 @@
 import {ImageType, NoteType} from "@/types/note.ts";
 import {Card, CardContent} from "@/components/ui/card"
+import {Config} from "@/lib/config.ts";
 
 interface NoteSingle {
     note: NoteType
@@ -12,7 +13,7 @@ const NoteSingle: React.FC<NoteSingle> = ({note}) => {
                 <p>{note.content}</p>
                 {note.images && (
                     note.images.map((image: ImageType) => (
-                        <img src={image.path || "/placeholder.svg"} alt="Note" className="mt-2 max-w-full h-auto"/>
+                        <img src={Config.UPLOADS_URL + "/" + image.path || "/placeholder.svg"} alt="Note" className="mt-2 max-w-full h-auto"/>
                     ))
                 )}
             </CardContent>
